@@ -1,0 +1,5 @@
+
+# add ignore to node_modules located at client and server folders
+
+client/node_modules
+server/node_modules
