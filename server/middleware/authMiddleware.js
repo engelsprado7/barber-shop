@@ -1,5 +1,4 @@
 // middleware/authMiddleware.mjs
-import jwt from 'jsonwebtoken';
 import supabase from '../supabaseClient.js';
 
 export const verifyToken = async (req, res, next) => {

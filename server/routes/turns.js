@@ -3,70 +3,124 @@
 import express from 'express';
 import supabase from '../supabaseClient.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
-import { Server } from 'socket.io';
-import http from 'http';
 import { sendWhatsAppMessage } from '../twilioClient.js';  // Import Twilio client
+import { getSocket } from '../socket.js'; // Import the getSocket function
 
 const app = express;
 const router = app.Router();
-const server = http.createServer(app);
-const io = new Server(server);
 let currentTurnNumber = 1; // Número de turno actual
 
 
 // Endpoint para obtener el número actual y los próximos
 router.get('/turns', async (req, res) => {
-    const { data: clients } = await supabase
-        .from('clients')
-        .select('*')
-        .order('turnNumber', { ascending: true })
-        .gte('turnNumber', currentTurnNumber);
+    try {
+        // Fetch the current turn
+        const { data: current, error: currentError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('status', 'current')
+            .order('id', { ascending: true })
+            .limit(1);
 
-    const currentNumber = clients[0]?.turnNumber || null;
-    const nextNumbers = clients.slice(1, 3).map(client => client.turnNumber);
+        if (currentError) throw currentError;
 
-    res.json({ currentNumber, nextNumbers });
+        console.log('current', current);
+        // Fetch the next two pending turns
+        const { data: next, error: nextError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('status', 'pending')
+            .order('turnNumber', { ascending: true })
+            .limit(2)
+
+
+        console.log('next', next);
+        if (nextError) throw nextError;
+
+        const currentNumber = current.length > 0 ? current[0].turnNumber : 'No current turn';
+        const nextNumbers = next.map((turn) => turn.turnNumber);
+
+        res.json({
+            currentNumber,
+            nextNumbers,
+        });
+    } catch (error) {
+        console.error('Error fetching turns:', error);
+        res.status(500).json({ message: 'Error fetching turns' });
+    }
 });
 
 // Endpoint para avanzar al siguiente turno
 router.post('/next', verifyToken, async (req, res) => {
-    currentTurnNumber += 1; // Incrementar el turno actual
+    const io = getSocket();
+    try {
 
-    // Obtener los nuevos turnos desde Supabase
-    const { data: clients } = await supabase
-        .from('clients')
-        .select('*')
-        .order('turnNumber', { ascending: true })
-        .gte('turnNumber', currentTurnNumber);
 
-    const currentNumber = clients[0]?.turnNumber || null;
-    const nextNumbers = clients.slice(1, 3).map(client => client.turnNumber);
+        // Mark the current turn as completed
+        const { error: completeError } = await supabase
+            .from('clients')
+            .update({ status: 'completed' })
+            .eq('status', 'current');
 
-    // Emitir actualización a todos los clientes conectados
-    io.emit('turn-update', { currentNumber, nextNumbers });
 
-    // Enviar notificación por WhatsApp al cliente que está siendo atendido
-    if (clients[0]?.phone) {
-        sendWhatsAppMessage(clients[0].phone, `Es tu turno para ser atendido. Tu número es ${clients[0].turnNumber}.`);
+        if (completeError) throw completeError;
+
+        // Mark the next turn as current
+        const { error: updateError } = await supabase
+            .from('clients')
+            .update({ status: 'current' })
+            .eq('status', 'pending')
+            .order('turnNumber', { ascending: true })
+            .limit(1);
+
+        if (updateError) throw updateError;
+
+        // Fetch the current turn
+        const { data: current, error: currentError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('status', 'current')
+            .order('id', { ascending: true })
+            .limit(1);
+
+
+        if (currentError) throw currentError;
+        // Fetch the next two pending turns
+        const { data: next, error: nextError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('status', 'pending')
+            .order('turnNumber', { ascending: true })
+            .limit(2)
+
+        if (nextError) throw nextError;
+
+        const currentNumber = current.length > 0 ? current[0].turnNumber : 'No current turn';
+        const nextNumbers = next.map((turn) => turn.turnNumber);
+
+        console.log('currentNumber', currentNumber);
+        console.log('nextNumbers', nextNumbers);
+
+        // Send a WhatsApp message to the current client
+
+        if (current[0]?.phone) {
+            sendWhatsAppMessage(current[0].phone, `Es tu turno para ser atendido. Tu número es ${current[0].turnNumber}.`);
+        }
+
+        // Emit the updated numbers to all connected clients
+        io.emit('turnsUpdate', {
+            currentNumber,
+            nextNumbers,
+        });
+
+        res.status(200).json({ message: 'Turn updated successfully' });
+    } catch (error) {
+        console.error('Error updating turn:', error);
+        res.status(500).json({ message: 'Error updating turn' });
     }
-
-    res.json({ currentNumber, nextNumbers });
 });
 
-// Socket.IO connection for real-time updates
-// io.on('connection', (socket) => {
-//     console.log('New client connected');
 
-//     // Send the current turn data when a new client connects
-//     socket.emit('turn-update', {
-//         currentTurnNumber,
-//         nextNumbers: queue.slice(0, 2),
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('Client disconnected');
-//     });
-// });
 
 // Endpoint para registrar un cliente con un número de teléfono
 router.post('/register', async (req, res) => {
@@ -90,7 +144,7 @@ router.post('/register', async (req, res) => {
     // Insertar el nuevo cliente con su número de turno
     const { data, error } = await supabase
         .from('clients')
-        .insert([{ phone, turnNumber: newTurnNumber }]);
+        .insert([{ phone, turnNumber: newTurnNumber, status: 'pending' }]);
     console.log('error', error);
     console.log('data', data);
     if (error) {

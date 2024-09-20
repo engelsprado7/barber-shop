@@ -1,5 +1,7 @@
 // src/components/TurnDisplay.jsx
 import React, { useState, useEffect } from 'react';
+import { socket } from '../socket';
+
 
 const TurnDisplay = () => {
   const [turns, setTurns] = useState([]);
@@ -16,15 +18,42 @@ const TurnDisplay = () => {
 
     fetchTurns();
 
-    // const eventSource = new EventSource('http://localhost:5000/api/turns/stream');
-    // eventSource.onmessage = (event) => {
-    //   const newTurn = JSON.parse(event.data);
-    //   setTurns((prev) => [...prev, newTurn].slice(-3));
-    // };
+    //Connect to socket.IO
 
-    // return () => {
-    //   eventSource.close();
-    // };
+
+    // Listen for real-time updates from the server via Socket.io
+    function onConnect() {
+      console.log('Connected to server');
+    }
+
+    function onDisconnect() {
+      console.log('Connected to server');
+
+    }
+
+    function onFooEvent(value) {
+      console.log('Connected to server');
+
+    }
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('foo', onFooEvent);
+
+    // Listen for real-time updates from the server via Socket.io
+    socket.on('turnsUpdate', (updatedTurns) => {
+      console.log('Turns updated:', updatedTurns);
+      setTurns(updatedTurns); // Show only the last 3 turns: current and next two
+    });
+
+ 
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('foo', onFooEvent);
+            socket.off('turnsUpdate');
+
+    };
   }, []);
 
   if (loading) return <div>Loading...</div>;

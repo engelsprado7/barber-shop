@@ -13,6 +13,6 @@
     "@astrojs/react": "^3.6.2",
     "@supabase/supabase-js": "^2.45.4",
     "astro": "^4.15.6",
-    "socket.io": "^4.0.1"
+    "socket.io-client": "^4.7.5"
   }
 }
