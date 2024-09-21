@@ -177,7 +177,12 @@ router.post('/register', verifyToken, async (req, res) => {
 
     const newTurnNumber = lastClient.length > 0 ? lastClient[0].turnNumber + 1 : 1;
     // Set the initial status based on whether it's the first client
-    const status = lastClient.length > 0 ? 'pending' : 'current';
+   let status= ''
+    if ( lastClient.length > 0 )
+    {
+      status = lastClient[0].status == 'completed' ? 'current' : 'pending'
+    }else
+      status = 'current'
 
     // Insertar el nuevo cliente con su número de turno
     const { data, error } = await supabase
