@@ -1,7 +1,6 @@
 // Import modules using ES syntax
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/auth.js';
