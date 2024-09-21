@@ -5,13 +5,24 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import NextTurnButton from "./NextTurnButton.jsx";
 import { Skeleton } from "@/components/ui/skeleton"
 
+let URL = ''
+
+if(import.meta.env.MODE === 'development') {
+  console.log('development')
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND
+}else {
+ URL = import.meta.env.PUBLIC_URL_API_BACKEND 
+}
+
+
 const TurnDisplay = () => {
   const [turns, setTurns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTurns = async () => {
-      const response = await fetch('http://localhost:3000/api/turns');
+      console.log('Fetching turns...', URL);
+      const response = await fetch(`${URL}/api/turns`);
       const data = await response.json();
       console.log("data", data);
       setTurns(data);
@@ -33,14 +44,9 @@ const TurnDisplay = () => {
 
     }
 
-    function onFooEvent(value) {
-      console.log('Connected to server');
-
-    }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('foo', onFooEvent);
 
     // Listen for real-time updates from the server via Socket.io
     socket.on('turnsUpdate', (updatedTurns) => {
@@ -52,7 +58,6 @@ const TurnDisplay = () => {
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('foo', onFooEvent);
       socket.off('turnsUpdate');
 
     };

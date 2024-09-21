@@ -8,6 +8,16 @@ import TurnDisplay from './TurnDisplay';
 import { Alert } from './ui/alert';
 import { isAuthenticated } from '../utils/auth.js';
 
+let URL = ''
+
+if(import.meta.env.MODE === 'development') {
+  console.log('development')
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND
+}else {
+ URL = import.meta.env.PUBLIC_URL_API_BACKEND 
+}
+
+
 const MainView = () => {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,7 +34,7 @@ const MainView = () => {
       return;
     }
 
-    const response = await fetch('http://localhost:3000/api/register', {
+    const response = await fetch(`${URL}/api/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

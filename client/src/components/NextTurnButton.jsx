@@ -2,6 +2,15 @@
 import React from 'react';
 import { Button } from "@/components/ui/button"
 import { isAuthenticated } from '../utils/auth.js';
+let URL = ''
+
+if(import.meta.env.MODE === 'development') {
+  console.log('development')
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND
+}else {
+ URL = import.meta.env.PUBLIC_URL_API_BACKEND 
+}
+
 
 const NextTurnButton = () => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
@@ -15,7 +24,7 @@ const NextTurnButton = () => {
       return;
     }
 
-    const response = await fetch('http://localhost:3000/api/next', {
+    const response = await fetch(`${URL}/api/next`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

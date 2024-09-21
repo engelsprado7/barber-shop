@@ -4,6 +4,15 @@ import { Input } from './ui/input'; // Shadcn styled input component
 import { Button } from './ui/button'; // Shadcn styled button component
 import { Card, CardHeader, CardContent } from './ui/card'; // Shadcn styled card component
 import { Alert } from './ui/alert'; // Shadcn styled alert component for messages
+let URL = ''
+
+if(import.meta.env.MODE === 'development') {
+  console.log('development')
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND
+}else {
+ URL = import.meta.env.PUBLIC_URL_API_BACKEND 
+}
+
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +24,7 @@ const SignIn = () => {
     setMessage('');
     setError('');
     try {
-      const response = await fetch('http://localhost:3000/api/signin', {
+      const response = await fetch(`${URL}/api/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
