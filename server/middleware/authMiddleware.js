@@ -2,11 +2,6 @@
 import supabase from '../supabaseClient.js';
 
 export const verifyToken = async (req, res, next) => {
-    const token = req.headers['authorization'];
-    console.log("token", token)
-    if (!token) {
-        return res.status(403).json({ error: 'No token provided' });
-    }
 
     try {
         const { data: { user } } = await supabase.auth.getUser()

@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "main": "index.js",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "express": "^4.17.1",
@@ -8,6 +9,11 @@
     "twilio": "^3.72.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "cross-env": "^7.0.3"
   }
 }

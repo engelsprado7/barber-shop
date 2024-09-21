@@ -1,7 +1,13 @@
 // src/components/NextTurnButton.jsx
 import React from 'react';
+import { Button } from "@/components/ui/button"
+import { isAuthenticated } from '../utils/auth.js';
 
 const NextTurnButton = () => {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  React.useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, []);
   const handleNextTurn = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -24,7 +30,7 @@ const NextTurnButton = () => {
     }
   };
 
-  return <button onClick={handleNextTurn}>Next Turn</button>;
+  return isLoggedIn && <Button onClick={handleNextTurn}>Next Turn</Button>
 };
 
 export default NextTurnButton;

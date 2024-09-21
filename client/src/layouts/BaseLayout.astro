@@ -1,0 +1,30 @@
+---
+import NavBar from "@/components/NavBar";
+import "@/styles/global.css";
+
+// const { title, description } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" /><meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        />
+
+        <title>Barber Shop</title>
+    </head>
+    <div class="stack backgrounds">
+        <NavBar client:load />
+        <slot />
+    </div>
+
+    <script>
+        // Add “loaded” class once the document has completely loaded.
+        addEventListener("load", () =>
+            document.documentElement.classList.add("loaded"),
+        );
+    </script>
+
+
+</html>

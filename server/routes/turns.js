@@ -9,7 +9,7 @@ import { getSocket } from '../socket.js'; // Import the getSocket function
 const app = express;
 const router = app.Router();
 let currentTurnNumber = 1; // Número de turno actual
-
+let nextNumbersEmit = []
 
 // Endpoint para obtener el número actual y los próximos
 router.get('/turns', async (req, res) => {
@@ -25,6 +25,7 @@ router.get('/turns', async (req, res) => {
         if (currentError) throw currentError;
 
         console.log('current', current);
+        currentTurnNumber = current.length > 0 ? current[0].turnNumber : currentTurnNumber;
         // Fetch the next two pending turns
         const { data: next, error: nextError } = await supabase
             .from('clients')
@@ -39,7 +40,7 @@ router.get('/turns', async (req, res) => {
 
         const currentNumber = current.length > 0 ? current[0].turnNumber : 'No current turn';
         const nextNumbers = next.map((turn) => turn.turnNumber);
-
+        nextNumbersEmit = nextNumbers;
         res.json({
             currentNumber,
             nextNumbers,
@@ -123,9 +124,16 @@ router.post('/next', verifyToken, async (req, res) => {
 
 
 // Endpoint para registrar un cliente con un número de teléfono
-router.post('/register', async (req, res) => {
+router.post('/register', verifyToken, async (req, res) => {
     const { phone } = req.body;
+    const user = req.user; // Assuming req.user contains authenticated user info
+    const io = getSocket();
+
     console.log('phone', phone);
+    if (!user) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     if (!phone) {
         return res.status(400).json({ error: 'Número de teléfono requerido' });
     }
@@ -140,17 +148,24 @@ router.post('/register', async (req, res) => {
 
     console.log('lastClient', lastClient);
     const newTurnNumber = lastClient ? lastClient.turnNumber + 1 : 1;
+    // Set the initial status based on whether it's the first client
+    const status = lastClient ? 'pending' : 'current';
 
     // Insertar el nuevo cliente con su número de turno
     const { data, error } = await supabase
         .from('clients')
-        .insert([{ phone, turnNumber: newTurnNumber, status: 'pending' }]);
+        .insert([{ phone, turnNumber: newTurnNumber, user_id: user.id, status: status }]);
     console.log('error', error);
     console.log('data', data);
     if (error) {
         return res.status(500).json({ error: 'Error al registrar el cliente' });
     }
 
+    // Emit the updated numbers to all connected clients
+    io.emit('turnsUpdate', {
+        currentNumber: currentTurnNumber,
+        nextNumbers: nextNumbersEmit,
+    });
     res.status(201).json({ turnNumber: newTurnNumber });
 });
 

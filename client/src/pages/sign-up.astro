@@ -1,10 +1,8 @@
 ---
-import SignUpComponent from "../components/SignUp.jsx";
+import SignUpComponent from "@/components/SignUp.jsx";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
-<html>
-    <body>
-        <h1>Sign Up</h1>
-        <SignUpComponent client:load />
-    </body>
-</html>
+<BaseLayout>
+    <SignUpComponent client:load />
+</BaseLayout>

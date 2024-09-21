@@ -1,7 +1,9 @@
 // src/components/TurnDisplay.jsx
 import React, { useState, useEffect } from 'react';
 import { socket } from '../socket';
-
+import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
+import NextTurnButton from "./NextTurnButton.jsx";
+import { Skeleton } from "@/components/ui/skeleton"
 
 const TurnDisplay = () => {
   const [turns, setTurns] = useState([]);
@@ -46,24 +48,56 @@ const TurnDisplay = () => {
       setTurns(updatedTurns); // Show only the last 3 turns: current and next two
     });
 
- 
+
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('foo', onFooEvent);
-            socket.off('turnsUpdate');
+      socket.off('turnsUpdate');
 
     };
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="flex flex-col space-y-3 pb-10">
+    <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+    <div className="space-y-2">
+      <Skeleton className="h-4 w-[250px]" />
+      <Skeleton className="h-4 w-[200px]" />
+    </div>
+  </div>
 
   return (
-    <div>
-      <h2>Current Turn</h2>
-      <div>{turns.currentNumber ? `Now Serving: ${turns.currentNumber}` : 'No turns yet.'}</div>
-      <div>{turns.nextNumbers.length > 1 ? `Next: ${turns.nextNumbers[0]}` : ''}</div>
-      <div>{turns.nextNumbers.length >= 2 ? `After: ${turns.nextNumbers[1]}` : ''}</div>
+    <div className='min-h-96 pb-10  '>
+      {/* Current and Next Numbers */}
+      <Card className="w-full max-w-2xl mb-6 shadow-lg">
+        <CardHeader>
+          <h2 className="text-xl font-bold text-center text-gray-800">Current Number</h2>
+        </CardHeader>
+        <CardContent className="text-center text-3xl font-semibold text-green-600">
+          {turns.currentNumber || 'No clients'}
+        </CardContent>
+        <CardFooter className="flex justify-center gap-4 mt-4">
+          <NextTurnButton />
+        </CardFooter>
+      </Card>
+
+      {/* Next Two Numbers */}
+      <Card className="w-full max-w-2xl mb-6 shadow-lg">
+        <CardHeader>
+          <h2 className="text-xl font-bold text-center text-gray-800">Next Numbers</h2>
+        </CardHeader>
+        <CardContent className="flex justify-center gap-4">
+          {turns.nextNumbers.length ? (
+            turns.nextNumbers.map((num) => (
+              <span key={num} className="text-2xl text-blue-500 font-semibold">
+                {num}
+              </span>
+            ))
+          ) : (
+            <span className="text-xl text-gray-500">No clients waiting</span>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

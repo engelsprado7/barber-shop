@@ -1,10 +1,8 @@
 ---
-import SignInComponent from "../components/SignIn.jsx";
+import SignInComponent from "@/components/SignIn.jsx";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
-<html>
-    <body>
-        <h1>Sign In</h1>
-        <SignInComponent client:load />
-    </body>
-</html>
+<BaseLayout>
+    <SignInComponent client:load />
+</BaseLayout>
