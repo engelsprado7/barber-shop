@@ -1,9 +1,12 @@
 // twilioClient.js
 import twilio from 'twilio';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Configurar Twilio
-const accountSid = 'AC6d73d0ccb4171130f96dad2b4427d03b';
-const authToken = '1a86d19440150ac4762c2e8a3664d6dd';
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
 export const sendWhatsAppMessage = (to, message) => {
