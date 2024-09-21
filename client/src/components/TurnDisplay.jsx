@@ -7,11 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 let URL = ''
 
-if(import.meta.env.MODE === 'development') {
+if (import.meta.env.MODE === 'development') {
   console.log('development')
   URL = import.meta.env.PUBLIC_URL_API_BACKEND
-}else {
- URL = import.meta.env.PUBLIC_URL_API_BACKEND 
+} else {
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND
 }
 
 
@@ -64,6 +64,12 @@ const TurnDisplay = () => {
   }, []);
 
   if (loading) return <div className="flex flex-col space-y-3 pb-10">
+    <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+    <div className="space-y-2">
+      <Skeleton className="h-4 w-[250px]" />
+      <Skeleton className="h-4 w-[200px]" />
+    </div>
+
     <Skeleton className="h-[125px] w-[250px] rounded-xl" />
     <div className="space-y-2">
       <Skeleton className="h-4 w-[250px]" />

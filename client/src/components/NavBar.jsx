@@ -10,8 +10,6 @@ export const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const [userInfo, setUserInfo] = React.useState(null);
     useEffect(() => {
-
-
         setIsLoggedIn(isAuthenticated());
         setUserInfo(getUserInfo());
     }, []);
@@ -20,7 +18,9 @@ export const NavBar = () => {
     console.log('userInfo', userInfo);
     return (
         <header className="flex justify-between w-full p-4">
-            <h1 className="text-2xl font-bold text-gray-800">Barber Shop</h1>
+            <a href='/'>
+                <h1 className="text-2xl font-bold text-gray-800">Barber Shop</h1>
+            </a>
             <div className='flex gap-4'>
                 {isLoggedIn ? <Avatar src={userInfo?.avatar} alt={userInfo?.name} />
                     :

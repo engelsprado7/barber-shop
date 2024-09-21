@@ -11,6 +11,27 @@ const router = app.Router();
 
 
 // Endpoint para obtener el número actual y los próximos
+router.get('/clients', async (req, res) => {
+    try {
+        // Fetch the current turn
+        const { data: clients, error: currentError } = await supabase
+            .from('clients')
+            .select('*')
+            .order('id', { ascending: true })
+
+        if (currentError) throw currentError;
+
+        // nextNubersEmit = nextNumbers;
+        res.json({
+            clients,
+        });
+    } catch (error) {
+        console.error('Error fetching turns:', error);
+        res.status(500).json({ message: 'Error fetching turns' });
+    }
+});
+
+// Endpoint para obtener el número actual y los próximos
 router.get('/turns', async (req, res) => {
     try {
         // Fetch the current turn

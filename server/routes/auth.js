@@ -43,6 +43,7 @@ router.post('/signin', async (req, res) => {
         res.status(200).json({
             message: 'User signed in successfully',
             token: data.session.access_token, // Return JWT token for authentication
+            refreshToken: data.session.refresh_token, // Return refresh token for session management
         });
     } catch (err) {
         res.status(500).json({ error: 'Internal Server Error' });

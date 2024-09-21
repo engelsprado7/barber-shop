@@ -35,6 +35,7 @@ const SignIn = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('refresh_token', data.refreshToken);
         setMessage('Sign-in successful!');
         setTimeout(() => {
           //redirect to the home page
