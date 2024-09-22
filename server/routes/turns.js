@@ -164,25 +164,14 @@ router.post('/register', verifyToken, async (req, res) => {
         .order('turnNumber', { ascending: false })
         .limit(1);
 
-    // Fetch the current turn
-    const { data: current, error: currentError } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('status', 'current')
-        .order('turnNumber', { ascending: true })
-        .limit(1);
-
-
-    if (currentError) throw currentError;
 
     const newTurnNumber = lastClient.length > 0 ? lastClient[0].turnNumber + 1 : 1;
     // Set the initial status based on whether it's the first client
-   let status= ''
-    if ( lastClient.length > 0 )
-    {
-      status = lastClient[0].status == 'completed' ? 'current' : 'pending'
-    }else
-      status = 'current'
+    let status = ''
+    if (lastClient.length > 0) {
+        status = lastClient[0].status == 'completed' ? 'current' : 'pending'
+    } else
+        status = 'current'
 
     // Insertar el nuevo cliente con su número de turno
     const { data, error } = await supabase
@@ -205,10 +194,19 @@ router.post('/register', verifyToken, async (req, res) => {
     if (nextError) throw nextError;
 
     console.log('NEXT', next);
+
+    // Fetch the current turn
+    const { data: current, error: currentError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('status', 'current')
+        .order('turnNumber', { ascending: true })
+        .limit(1);
+
+    if (currentError) throw currentError;
+
     const currentNumber = current.length > 0 ? current[0].turnNumber : 1;
     const nextNumbers = next.map((turn) => turn.turnNumber);
-
-
 
     // Emit the updated numbers to all connected clients
     io.emit('turnsUpdate', {
