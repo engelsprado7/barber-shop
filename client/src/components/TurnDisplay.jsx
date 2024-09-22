@@ -4,7 +4,8 @@ import { socket } from '../socket';
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import NextTurnButton from "./NextTurnButton.jsx";
 import { Skeleton } from "@/components/ui/skeleton"
-
+import { useStore } from '@nanostores/react';
+import { isCurrentTurn } from '../currentTurnStore.js';
 let URL = ''
 
 if (import.meta.env.MODE === 'development') {
@@ -18,15 +19,21 @@ if (import.meta.env.MODE === 'development') {
 const TurnDisplay = () => {
   const [turns, setTurns] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const $isCurrentTurnSet = useStore(isCurrentTurn);
   useEffect(() => {
     const fetchTurns = async () => {
-      console.log('Fetching turns...', URL);
       const response = await fetch(`${URL}/api/turns`);
       const data = await response.json();
-      console.log("data", data);
       setTurns(data);
       setLoading(false);
+
+      if (data.currentNumber) {
+        console.log('Current turn:', data.currentNumber);
+        isCurrentTurn.set(true);
+      } else {
+        isCurrentTurn.set(false);
+      }
+
     };
 
     fetchTurns();
@@ -51,6 +58,7 @@ const TurnDisplay = () => {
     // Listen for real-time updates from the server via Socket.io
     socket.on('turnsUpdate', (updatedTurns) => {
       console.log('Turns updated:', updatedTurns);
+      updatedTurns.currentNumber ? isCurrentTurn.set(true) : isCurrentTurn.set(false);
       setTurns(updatedTurns); // Show only the last 3 turns: current and next two
     });
 
@@ -88,7 +96,7 @@ const TurnDisplay = () => {
           {turns.currentNumber || 'No clients'}
         </CardContent>
         <CardFooter className="flex justify-center gap-4 mt-4">
-          <NextTurnButton />
+          <NextTurnButton client:load />
         </CardFooter>
       </Card>
 

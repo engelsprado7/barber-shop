@@ -1,8 +1,10 @@
 // src/components/NextTurnButton.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { isAuthenticated } from '../utils/auth.js';
 import { ReloadIcon } from "@radix-ui/react-icons"
+import { useStore } from '@nanostores/react';
+import { isCurrentTurn } from '../currentTurnStore.js';
 
 let URL = ''
 
@@ -15,15 +17,19 @@ if (import.meta.env.MODE === 'development') {
 
 
 const NextTurnButton = () => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const $isCurrentTurnSet = useStore(isCurrentTurn);
 
   React.useEffect(() => {
     setIsLoggedIn(isAuthenticated());
+
   }, []);
   const handleNextTurn = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
+    const refreshToken = localStorage.getItem('refresh_token');
+
     if (!token) {
       alert('You must be logged in to perform this action');
       return;
@@ -34,21 +40,25 @@ const NextTurnButton = () => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `${token}`,
+        refresh_token: refreshToken,
       },
     });
 
+    
+
     if (response.ok) {
-      console.log('Turn updated successfully');
-      setLoading(false);
+      const data = await response.json();
+      data.currentNumber ? isCurrentTurn.set(true) : isCurrentTurn.set(false);
     } else {
-      setLoading(false);
       console.error('Failed to update turn');
     }
+    setLoading(false);
+
   };
 
   return (
     <div>
-      {isLoggedIn &&
+      {(isLoggedIn && $isCurrentTurnSet) &&
         < Button onClick={handleNextTurn} disabled={loading} >
           {loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
             : 'Next Turn'}

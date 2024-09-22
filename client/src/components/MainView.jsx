@@ -59,7 +59,7 @@ const MainView = () => {
     setTimeout(() => {
       setMessage('');
       setPhone('');
-    }, 2000)
+    }, 1000)
   };
 
   return (
@@ -84,7 +84,7 @@ const MainView = () => {
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
             {
               loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                : 'Register'
+                : 'Add Phone'
             }
           </Button>}
 

@@ -45,7 +45,6 @@ router.get('/turns', async (req, res) => {
         if (currentError) throw currentError;
 
         console.log('current', current);
-        // currentTurnNumber = current.length > 0 ? current[0].turnNumber : currentTurnNumber;
         // Fetch the next two pending turns
         const { data: next, error: nextError } = await supabase
             .from('clients')
@@ -57,7 +56,7 @@ router.get('/turns', async (req, res) => {
 
         if (nextError) throw nextError;
 
-        const currentNumber = current.length > 0 ? current[0].turnNumber : 'No current turn';
+        const currentNumber = current.length > 0 ? current[0].turnNumber : null;
         const nextNumbers = next.map((turn) => turn.turnNumber);
         // nextNumbersEmit = nextNumbers;
         res.json({
@@ -115,7 +114,7 @@ router.post('/next', verifyToken, async (req, res) => {
 
         if (nextError) throw nextError;
 
-        const currentNumber = current.length > 0 ? current[0].turnNumber : 'No current turn';
+        const currentNumber = current.length > 0 ? current[0].turnNumber : null;
         const nextNumbers = next.map((turn) => turn.turnNumber);
 
         console.log('currentNumber', currentNumber);
@@ -133,7 +132,9 @@ router.post('/next', verifyToken, async (req, res) => {
             nextNumbers,
         });
 
-        res.status(200).json({ message: 'Turn updated successfully' });
+        res.status(200).json({
+            currentNumber,
+        });
     } catch (error) {
         console.error('Error updating turn:', error);
         res.status(500).json({ message: 'Error updating turn' });
@@ -147,8 +148,6 @@ router.post('/register', verifyToken, async (req, res) => {
     const { phone } = req.body;
     const user = req.user; // Assuming req.user contains authenticated user info
     const io = getSocket();
-
-    console.log('phone', phone);
     if (!user) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
