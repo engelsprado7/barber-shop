@@ -20,6 +20,11 @@ const SignIn = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
+
+
+
+  
+
   const handleSignIn = async () => {
     setMessage('');
     setError('');
@@ -45,6 +50,7 @@ const SignIn = () => {
         setError(data.message || 'An error occurred. Please try again.');
       }
     } catch (err) {
+      console.log(err)
       setError('Network error. Please check your connection.');
     }
   };

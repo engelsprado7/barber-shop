@@ -43,6 +43,7 @@ const SignUp = () => {
     }
   };
 
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-2">
       <Card className="w-full max-w-sm p-4 shadow-lg">

@@ -4,7 +4,6 @@ import { socket } from '../socket';
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import NextTurnButton from "./NextTurnButton.jsx";
 import { Skeleton } from "@/components/ui/skeleton"
-import { useStore } from '@nanostores/react';
 import { isCurrentTurn } from '../currentTurnStore.js';
 let URL = ''
 
@@ -15,11 +14,10 @@ if (import.meta.env.MODE === 'development') {
   URL = import.meta.env.PUBLIC_URL_API_BACKEND
 }
 
-
 const TurnDisplay = () => {
   const [turns, setTurns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const $isCurrentTurnSet = useStore(isCurrentTurn);
+  
   useEffect(() => {
     const fetchTurns = async () => {
       const response = await fetch(`${URL}/api/turns`);

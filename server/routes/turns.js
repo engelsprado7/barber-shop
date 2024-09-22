@@ -117,12 +117,10 @@ router.post('/next', verifyToken, async (req, res) => {
         const currentNumber = current.length > 0 ? current[0].turnNumber : null;
         const nextNumbers = next.map((turn) => turn.turnNumber);
 
-        console.log('currentNumber', currentNumber);
-        console.log('nextNumbers', nextNumbers);
-
         // Send a WhatsApp message to the current client
 
         if (current[0]?.phone) {
+            console.log("SENDING WHATSAPP MESSAGE TO", current[0].phone);
             sendWhatsAppMessage(current[0].phone, `Es tu turno para ser atendido. Tu número es ${current[0].turnNumber}.`);
         }
 

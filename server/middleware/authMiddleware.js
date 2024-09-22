@@ -6,8 +6,7 @@ export const verifyToken = async (req, res, next) => {
     const token = req.headers['authorization'];
     const refreshToken = req.headers['refresh_token'];
 
-    console.log("token", token);
-    console.log("refreshToken", refreshToken);
+
     if (!token) {
         return res.status(401).json({ error: 'Token is required' });
     }
@@ -15,7 +14,6 @@ export const verifyToken = async (req, res, next) => {
 
         const { data: { user } } = await supabase.auth.getUser(token)
 
-        console.log("currentUser", user);
         if (!user) {
             return res.status(401).json({ error: 'Invalid token' });
         }

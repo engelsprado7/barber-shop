@@ -14,8 +14,10 @@ export const NavBar = () => {
         setUserInfo(getUserInfo());
     }, []);
 
-    console.log('isLoggedIn', isLoggedIn);
-    console.log('userInfo', userInfo);
+
+
+
+
     return (
         <header className="flex justify-between w-full p-4">
             <a href='/'>

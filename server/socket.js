@@ -13,7 +13,6 @@ export const initializeSocket = (server) => {
 
     // Handle connections
     io.on('connection', (socket) => {
-        console.log('A user connected');
         socket.on('disconnect', () => {
             console.log('A user disconnected');
         });
