@@ -5,6 +5,7 @@ import TurnDisplay from "./TurnDisplay";
 import { Alert } from "./ui/alert";
 import { isAuthenticated } from "../utils/auth.js";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import ListPendingClients from "./ListPendingClients.jsx";
 
 let URL = "";
 
@@ -121,6 +122,8 @@ const MainView = () => {
           )}
         </form>
       )}
+
+      <ListPendingClients client:load />
     </div>
   );
 };

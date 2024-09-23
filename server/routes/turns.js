@@ -5,6 +5,7 @@ import supabase from '../supabaseClient.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { sendWhatsAppMessage } from '../twilioClient.js';  // Import Twilio client
 import { getSocket } from '../socket.js'; // Import the getSocket function
+import Studio from 'twilio/lib/rest/Studio.js';
 
 const app = express;
 const router = app.Router();
@@ -14,6 +15,7 @@ const router = app.Router();
 router.put('/clients/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
     const { turnNumber, phone, status } = req.body;
+    console.log('id', id);
     try {
         const { data, error } = await supabase
             .from('clients')
@@ -29,8 +31,34 @@ router.put('/clients/:id', verifyToken, async (req, res) => {
     }
 })
 
+//Endpoint for getting the clients with pending status
+// for example: /api/clients/pending?status=pending
+
+router.get('/clients/pending', async (req, res) => {
+    const { status } = req.query;
+    if (status === 'pending') {
+        try {
+            const { data: pendingClients, error } = await supabase
+                .from('clients')
+                .select('*')
+                .eq('status', 'pending');
+
+            if (error) throw error;
+
+            res.status(200).json({ clients: pendingClients });
+        } catch (error) {
+            console.error('Error fetching pending clients:', error);
+            res.status(500).json({ message: 'Error fetching pending clients' });
+        }
+    } else {
+        res.status(400).json({ error: 'Invalid status query parameter' });
+    }
+});
+
+
 // Endpoint para obtener el número actual y los próximos
 router.get('/clients', async (req, res) => {
+    console.log('GETTING CLIENTS');
     try {
         // Fetch the current turn
         const { data: clients, error: currentError } = await supabase
