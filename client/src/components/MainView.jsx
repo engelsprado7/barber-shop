@@ -1,7 +1,4 @@
-// src/components/MainView.jsx
-import React from "react";
-
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import TurnDisplay from "./TurnDisplay";
@@ -23,10 +20,30 @@ const MainView = () => {
   const [phone, setPhone] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const debounceTimeout = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoggedIn(isAuthenticated());
   }, []);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setPhone(value);
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      if (value.length !== 8) {
+        setError("Phone number must be exactly 8 characters long.");
+      } else {
+        setError("");
+      }
+    }, 300); // 300ms debounce delay
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,6 +52,7 @@ const MainView = () => {
     console.log("refresh", refreshToken);
     if (!token) {
       alert("You must be logged in to perform this action");
+      setLoading(false);
       return;
     }
     const response = await fetch(`${URL}/api/register`, {
@@ -62,7 +80,7 @@ const MainView = () => {
   };
 
   return (
-    <div className=" flex flex-col items-center p-6">
+    <div className="flex flex-col items-center p-6">
       <TurnDisplay client:load />
 
       {/* Registration Form */}
@@ -77,14 +95,16 @@ const MainView = () => {
             type="tel"
             placeholder="Enter your phone number"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={handleInputChange}
             className="mb-4"
             required
           />
+          {error && <p className="text-red-600 mb-4">{error}</p>}
 
           <Button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className={`w-full ${error ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"} text-white`}
+            disabled={error !== ""}
           >
             {loading ? (
               <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -96,7 +116,7 @@ const MainView = () => {
           {/* Add status when the Register is success */}
           {message && (
             <Alert variant="success" className="mt-4">
-              You have been registered successfully!
+              {message}
             </Alert>
           )}
         </form>
