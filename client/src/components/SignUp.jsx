@@ -50,7 +50,9 @@ const SignUp = () => {
         <CardHeader className="text-center mb-4">
           <h2 className="text-2xl font-semibold text-gray-800">Sign Up</h2>
         </CardHeader>
+       
         <CardContent className="space-y-4">
+          
           <Input
             type="email"
             placeholder="Email"
@@ -59,6 +61,7 @@ const SignUp = () => {
             className="w-full"
             required
           />
+          
           <Input
             type="password"
             placeholder="Password"
@@ -67,15 +70,18 @@ const SignUp = () => {
             className="w-full"
             required
           />
+          
           <Button
             onClick={handleSignUp}
             className="w-full bg-green-600 hover:bg-green-700 text-white"
           >
             Sign Up
           </Button>
+          
           {message && <Alert variant="success">{message}</Alert>}
           {error && <Alert variant="error">{error}</Alert>}
         </CardContent>
+       
         <CardFooter className="text-center">
           <p className="text-gray-500 text-sm">
             Already have an account? Sign in above.

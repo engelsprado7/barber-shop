@@ -71,6 +71,7 @@ const MainView = () => {
       {/* Registration Form */}
       {isLoggedIn && <form onSubmit={handleRegister} className="w-full max-w-2xl p-4 bg-white shadow-lg rounded-lg">
         <h3 className="text-lg font-bold text-gray-700 mb-4">Phone Number</h3>
+        
         <Input
           type="tel"
           placeholder="Enter your phone number"
@@ -79,14 +80,15 @@ const MainView = () => {
           className="mb-4"
           required
         />
-        {
 
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-            {
-              loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                : 'Add Phone'
-            }
-          </Button>}
+        
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          {
+            loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              : 'Add Phone'
+          }
+        </Button>
+
 
         {/* Add status when the Register is success */}
         {message && <Alert variant="success" className="mt-4">

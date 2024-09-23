@@ -61,6 +61,7 @@ const Dashboard = () => {
   return (
     <div>
       <h2>Client Dashboard</h2>
+      
       <table className="min-w-full border-collapse border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -71,40 +72,42 @@ const Dashboard = () => {
             <th className="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
+        
         <tbody>
           {clients.map((client) => (
             <tr key={client.id} className="hover:bg-gray-50">
               <td className="border border-gray-300 px-4 py-2">{client.id}</td>
+             
               <td className="border border-gray-300 px-4 py-2">
                 <input
                   type="number"
                   value={client.turnNumber}
                   onChange={(e) =>
-                    handleUpdate(client.id, 'turnNumber', e.target.value)
-                  }
+                    handleUpdate(client.id, 'turnNumber', e.target.value)}
                   className="border border-gray-300 px-2 py-1"
                 />
               </td>
+              
               <td className="border border-gray-300 px-4 py-2">
                 <input
                   type="text"
                   value={client.status}
                   onChange={(e) =>
-                    handleUpdate(client.id, 'status', e.target.value)
-                  }
+                    handleUpdate(client.id, 'status', e.target.value)}
                   className="border border-gray-300 px-2 py-1"
                 />
               </td>
+             
               <td className="border border-gray-300 px-4 py-2">
                 <input
                   type="text"
                   value={client.phone}
                   onChange={(e) =>
-                    handleUpdate(client.id, 'phone', e.target.value)
-                  }
+                    handleUpdate(client.id, 'phone', e.target.value)}
                   className="border border-gray-300 px-2 py-1"
                 />
               </td>
+             
               <td className="border border-gray-300 px-4 py-2">
                 <button onClick={() => handleUpdate(client.id, 'phone', client.phone)}>Save</button>
               </td>

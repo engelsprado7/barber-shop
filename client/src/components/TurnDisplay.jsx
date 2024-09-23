@@ -71,12 +71,14 @@ const TurnDisplay = () => {
 
   if (loading) return <div className="flex flex-col space-y-3 pb-10">
     <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+    
     <div className="space-y-2">
       <Skeleton className="h-4 w-[250px]" />
       <Skeleton className="h-4 w-[200px]" />
     </div>
 
     <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+    
     <div className="space-y-2">
       <Skeleton className="h-4 w-[250px]" />
       <Skeleton className="h-4 w-[200px]" />
@@ -90,9 +92,11 @@ const TurnDisplay = () => {
         <CardHeader>
           <h2 className="text-xl font-bold text-center text-gray-800">Current Number</h2>
         </CardHeader>
+        
         <CardContent className="text-center text-3xl font-semibold text-green-600">
           {turns.currentNumber || 'No clients'}
         </CardContent>
+        
         <CardFooter className="flex justify-center gap-4 mt-4">
           <NextTurnButton client:load />
         </CardFooter>
@@ -103,6 +107,7 @@ const TurnDisplay = () => {
         <CardHeader>
           <h2 className="text-xl font-bold text-center text-gray-800">Next Numbers</h2>
         </CardHeader>
+        
         <CardContent className="flex justify-center gap-4">
           {turns.nextNumbers.length ? (
             turns.nextNumbers.map((num) => (

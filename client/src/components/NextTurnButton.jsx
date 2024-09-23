@@ -62,9 +62,7 @@ const NextTurnButton = () => {
         < Button onClick={handleNextTurn} disabled={loading} >
           {loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
             : 'Next Turn'}
-        </Button>
-
-      }
+        </Button>}
     </div >
   )
 };
