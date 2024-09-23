@@ -50,7 +50,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-2">
+    <div className="flex justify-center items-center p-2">
       <Card className="w-full max-w-sm p-4 shadow-lg">
         <CardHeader className="text-center mb-4">
           <h2 className="text-2xl font-semibold text-gray-800">Sign In</h2>

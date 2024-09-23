@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { isAuthenticated } from "../utils/auth.js";
 
 let URL = "";
 
@@ -20,6 +21,8 @@ if (import.meta.env.MODE === "development") {
 }
 
 const Dashboard = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +30,11 @@ const Dashboard = () => {
   const [editedValues, setEditedValues] = useState({});
 
   useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+
+    if (!isLoggedIn) {
+      return window.location.replace("/sign-in");
+    }
     const fetchClients = async () => {
       try {
         const response = await fetch(`${URL}/api/clients`); // Adjust the URL to your endpoint
@@ -96,13 +104,45 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  //Create a skeleton loader for the table
+
+  if (loading)
+    return (
+      <div className="animate-pulse">
+        <Table>
+          <TableCaption>Loading...</TableCaption>
+
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[200px]">ID</TableHead>
+              <TableHead className="w-[200px]">Turn Number</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {[1].map((id) => (
+              <TableRow key={id}>
+                <TableCell>Loading...</TableCell>
+                <TableCell>Loading...</TableCell>
+                <TableCell>Loading...</TableCell>
+                <TableCell>Loading...</TableCell>
+                <TableCell>Loading...</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableCaption>A list of your recent clients.</TableCaption>
 
         <TableHeader>
           <TableRow>

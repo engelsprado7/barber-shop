@@ -1,51 +1,62 @@
-// NavBar component
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { isAuthenticated, logout } from "../utils/auth.js";
+import { CircleX, Menu } from "lucide-react";
+const NavBar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-import React, { useEffect } from "react";
-import { Button } from "./ui/button";
-import { isAuthenticated, getUserInfo, logout } from "../utils/auth.js";
-import { Avatar } from "./ui/avatar";
-
-export const NavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [userInfo, setUserInfo] = React.useState(null);
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
-    setUserInfo(getUserInfo());
   }, []);
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
-    <header className="flex justify-between w-full p-4">
-      <a href="/">
-        <h1 className="text-2xl font-bold text-gray-800">Barber Shop</h1>
-      </a>
-
-      <div className="flex gap-4">
-        {isLoggedIn ? (
-          <Avatar src={userInfo?.avatar} alt={userInfo?.name} />
-        ) : (
-          <Button
-            className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
-            asChild
-          >
-            <a href="/sign-in">Sign In</a>
+    <header className="flex flex-col items-start md:flex-row justify-between md:items-center w-full p-4 bg-white shadow-md ">
+      <div className="flex flex-row justify-between w-full">
+        <a href="/">
+          <h1 className="text-2xl font-bold text-gray-800">Barber Shop</h1>
+        </a>
+        <div className="md:hidden">
+          <Button variant="ghost" onClick={toggleMenu}>
+            {menuOpen ? <CircleX size={24} /> : <Menu size={24} />}
           </Button>
-        )}
-
-        {isLoggedIn ? (
-          <Button
-            className="bg-red-600 hover:bg-red-700 text-white"
-            onClick={logout}
-          >
-            Logout
-          </Button>
-        ) : (
-          <Button
-            className="bg-green-600 hover:bg-green-700 text-white"
-            asChild
-          >
-            <a href="/sign-up">Sign Up</a>
-          </Button>
-        )}
+        </div>
+      </div>
+      <div className="flex flex-col justify-start items-start md:items-center gap-4">
+        <div
+          className={`flex-col justify-start items-start md:flex-row md:flex md:items-center gap-4 ${menuOpen ? "flex" : "hidden"} md:flex`}
+        >
+          {isLoggedIn ? (
+            <>
+              {/* <Avatar src={userInfo?.avatar} alt={userInfo?.name} /> */}
+              <Button asChild variant="outline">
+                <a href="/">Home</a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href="/dashboard">Dashboard</a>
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={logout}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild>
+                <a href="/sign-in">Sign In</a>
+              </Button>
+              <Button variant="outline" asChild>
+                <a href="/sign-in">Sign Up</a>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

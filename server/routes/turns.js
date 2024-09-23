@@ -9,6 +9,25 @@ import { getSocket } from '../socket.js'; // Import the getSocket function
 const app = express;
 const router = app.Router();
 
+//Endpoint for updating the clients turnNumber, phone, and status
+
+router.put('/clients/:id', verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const { turnNumber, phone, status } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('clients')
+            .update({ turnNumber, phone, status })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Error updating client:', error);
+        res.status(500).json({ message: 'Error updating client' });
+    }
+})
 
 // Endpoint para obtener el número actual y los próximos
 router.get('/clients', async (req, res) => {
