@@ -1,6 +1,14 @@
-// src/components/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 let URL = "";
 
@@ -15,6 +23,8 @@ const Dashboard = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editMode, setEditMode] = useState({});
+  const [editedValues, setEditedValues] = useState({});
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -35,23 +45,54 @@ const Dashboard = () => {
     fetchClients();
   }, []);
 
-  const handleUpdate = async (id, field, value) => {
-    const response = await fetch(`http://localhost:3000/api/clients/${id}`, {
+  const handleInputChange = (id, field, value) => {
+    console.log("id", id, "field", field, "value", value);
+    setEditedValues((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleSave = async (id) => {
+    const updatedClient = editedValues[id];
+    const response = await fetch(`${URL}/api/clients/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token")}`,
+        refresh_token: `${localStorage.getItem("refresh_token")}`,
       },
-      body: JSON.stringify({ [field]: value }),
+      body: JSON.stringify(updatedClient),
     });
 
+    console.log("response", response);
     if (response.ok) {
       const updatedClients = clients.map((client) =>
-        client.id === id ? { ...client, [field]: value } : client,
+        client.id === id ? { ...client, ...updatedClient } : client,
       );
       setClients(updatedClients);
+      setEditMode((prev) => ({ ...prev, [id]: false }));
     } else {
       const errorData = await response.json();
-      setError(`Error updating ${field}: ${errorData.message}`);
+      setError(`Error updating client: ${errorData.message}`);
+    }
+  };
+
+  const toggleEditMode = (id) => {
+    setEditMode((prev) => ({ ...prev, [id]: !prev[id] }));
+    if (!editMode[id]) {
+      const client = clients.find((client) => client.id === id);
+      setEditedValues((prev) => ({
+        ...prev,
+        [id]: {
+          turnNumber: client.turnNumber,
+          status: client.status,
+          phone: client.phone,
+        },
+      }));
     }
   };
 
@@ -60,68 +101,95 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h2>Client Dashboard</h2>
+      <Table>
+        <TableCaption>A list of your recent invoices.</TableCaption>
 
-      <table className="min-w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border border-gray-300 px-4 py-2">ID</th>
-            <th className="border border-gray-300 px-4 py-2">Turn Number</th>
-            <th className="border border-gray-300 px-4 py-2">Status</th>
-            <th className="border border-gray-300 px-4 py-2">Phone</th>
-            <th className="border border-gray-300 px-4 py-2">Actions</th>
-          </tr>
-        </thead>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[200px]">ID</TableHead>
+            <TableHead className="w-[200px]">Turn Number</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Phone</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <tbody>
+        <TableBody>
           {clients.map((client) => (
-            <tr key={client.id} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">{client.id}</td>
+            <TableRow key={client.id}>
+              <TableCell>{client.id}</TableCell>
 
-              <td className="border border-gray-300 px-4 py-2">
-                <input
-                  type="number"
-                  value={client.turnNumber}
-                  onChange={(e) =>
-                    setTurnNumber(client.id, "turnNumber", e.target.value)
-                  }
-                  className="border border-gray-300 px-2 py-1"
-                />
-              </td>
+              <TableCell className="w-[100px]">
+                {editMode[client.id] ? (
+                  <input
+                    type="number"
+                    value={
+                      editedValues[client.id]?.turnNumber ?? client.turnNumber
+                    }
+                    onChange={(e) =>
+                      handleInputChange(client.id, "turnNumber", e.target.value)
+                    }
+                    className="border border-gray-300 px-2 py-1"
+                  />
+                ) : (
+                  client.turnNumber
+                )}
+              </TableCell>
 
-              <td className="border border-gray-300 px-4 py-2">
-                <input
-                  type="text"
-                  value={client.status}
-                  onChange={(e) =>
-                    handleUpdate(client.id, "status", e.target.value)
-                  }
-                  className="border border-gray-300 px-2 py-1"
-                />
-              </td>
+              <TableCell>
+                {editMode[client.id] ? (
+                  <input
+                    type="text"
+                    value={editedValues[client.id]?.status ?? client.status}
+                    onChange={(e) =>
+                      handleInputChange(client.id, "status", e.target.value)
+                    }
+                    className="border border-gray-300 px-2 py-1"
+                  />
+                ) : (
+                  client.status
+                )}
+              </TableCell>
 
-              <td className="border border-gray-300 px-4 py-2">
-                <input
-                  type="text"
-                  value={client.phone}
-                  onChange={(e) =>
-                    handleUpdate(client.id, "phone", e.target.value)
-                  }
-                  className="border border-gray-300 px-2 py-1"
-                />
-              </td>
+              <TableCell>
+                {editMode[client.id] ? (
+                  <input
+                    type="text"
+                    value={editedValues[client.id]?.phone ?? client.phone}
+                    onChange={(e) =>
+                      handleInputChange(client.id, "phone", e.target.value)
+                    }
+                    className="border border-gray-300 px-2 py-1"
+                  />
+                ) : (
+                  client.phone
+                )}
+              </TableCell>
 
-              <td className="border border-gray-300 px-4 py-2">
-                <Button
-                  onClick={() => handleUpdate(client.id, "phone", client.phone)}
-                >
-                  Save
-                </Button>
-              </td>
-            </tr>
+              <TableCell>
+                {editMode[client.id] ? (
+                  <div className="flex gap-1">
+                    <Button onClick={() => handleSave(client.id)}>Save</Button>
+                    <Button
+                      onClick={() => toggleEditMode(client.id)}
+                      variant="destructive"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => toggleEditMode(client.id)}
+                    variant="outline"
+                  >
+                    Edit
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
