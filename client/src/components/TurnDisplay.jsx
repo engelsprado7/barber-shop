@@ -4,36 +4,58 @@ import { socket } from "../socket";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import NextTurnButton from "./NextTurnButton.jsx";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isCurrentTurn } from "../currentTurnStore.js";
+import {
+  isCurrentTurn,
+  setAllClients,
+  allClients,
+} from "../currentTurnStore.js";
+import { getCurrentClient, getNextClients } from "@/utils/filterClients.js";
+import { useStore } from "@nanostores/react";
 let URL = "";
 
 if (import.meta.env.MODE === "development") {
-  console.log("development");
   URL = import.meta.env.PUBLIC_URL_API_BACKEND;
 } else {
   URL = import.meta.env.PUBLIC_URL_API_BACKEND;
 }
 
 const TurnDisplay = () => {
-  const [turns, setTurns] = useState([]);
+  const [currentNumber, setCurrentNumber] = useState([]);
+  const [nextTurns, setNextTurns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const $allClients = useStore(allClients);
 
   useEffect(() => {
     const fetchTurns = async () => {
-      const response = await fetch(`${URL}/api/turns`);
-      const data = await response.json();
-      setTurns(data);
-      setLoading(false);
+      const response = await fetch(`${URL}/api/clients`);
 
-      if (data.currentNumber) {
-        console.log("Current turn:", data.currentNumber);
-        isCurrentTurn.set(true);
+      if (response.ok) {
+        const data = await response.json();
+
+        const currentTurn = getCurrentClient(data.clients);
+        const nextTurns = getNextClients(data.clients);
+
+        setNewClients(data.clients);
+        setCurrentNumber(currentTurn);
+        setNextTurns(nextTurns);
+
+        if (currentTurn) {
+          isCurrentTurn.set(true);
+        }
+
+        setLoading(false);
       } else {
-        isCurrentTurn.set(false);
+        setLoading(false);
       }
     };
 
     fetchTurns();
+
+    const setNewClients = (clients) => {
+      clients.forEach((client) => {
+        setAllClients({ ...client });
+      });
+    };
 
     //Connect to socket.IO
 
@@ -49,21 +71,19 @@ const TurnDisplay = () => {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
-    // Listen for real-time updates from the server via Socket.io
-    socket.on("turnsUpdate", (updatedTurns) => {
-      console.log("Turns updated:", updatedTurns);
-      updatedTurns.currentNumber
-        ? isCurrentTurn.set(true)
-        : isCurrentTurn.set(false);
-      setTurns(updatedTurns); // Show only the last 3 turns: current and next two
-    });
-
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("turnsUpdate");
     };
   }, []);
+
+  useEffect(() => {
+    const nextTurns = getNextClients(Object.values($allClients));
+    const currentTurn = getCurrentClient(Object.values($allClients));
+    setCurrentNumber(currentTurn);
+    setNextTurns(nextTurns);
+  }, [$allClients]);
 
   if (loading)
     return (
@@ -95,7 +115,7 @@ const TurnDisplay = () => {
         </CardHeader>
 
         <CardContent className="text-center text-3xl font-semibold text-green-600">
-          {turns.currentNumber || "No clients"}
+          {currentNumber?.turnNumber || "No clients"}
         </CardContent>
 
         <CardFooter className="flex justify-center gap-4 mt-4">
@@ -112,10 +132,13 @@ const TurnDisplay = () => {
         </CardHeader>
 
         <CardContent className="flex justify-center gap-4">
-          {turns.nextNumbers.length ? (
-            turns.nextNumbers.map((num) => (
-              <span key={num} className="text-2xl text-blue-500 font-semibold">
-                {num}
+          {nextTurns.length ? (
+            nextTurns.map((client) => (
+              <span
+                key={client.id}
+                className="text-2xl text-blue-500 font-semibold"
+              >
+                {client.turnNumber}
               </span>
             ))
           ) : (

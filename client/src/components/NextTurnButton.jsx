@@ -1,10 +1,15 @@
 // src/components/NextTurnButton.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated } from "../utils/auth.js";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useStore } from "@nanostores/react";
-import { isCurrentTurn } from "../currentTurnStore.js";
+import {
+  allClients,
+  isCurrentTurn,
+  setAllClients,
+} from "../currentTurnStore.js";
+import { getCurrentClient } from "@/utils/filterClients.js";
 
 let URL = "";
 
@@ -19,10 +24,17 @@ const NextTurnButton = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const $isCurrentTurnSet = useStore(isCurrentTurn);
+  const $allClients = useStore(allClients);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoggedIn(isAuthenticated());
   }, []);
+
+  useEffect(() => {
+    const currentClient = getCurrentClient(Object.values($allClients));
+    currentClient ? isCurrentTurn.set(true) : isCurrentTurn.set(false);
+  }, [$allClients]);
+
   const handleNextTurn = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -44,7 +56,20 @@ const NextTurnButton = () => {
 
     if (response.ok) {
       const data = await response.json();
-      data.currentNumber ? isCurrentTurn.set(true) : isCurrentTurn.set(false);
+      const currentClient = getCurrentClient(Object.values($allClients));
+      const previousCurrentClient = {
+        id: currentClient.id,
+        turnNumber: currentClient.turnNumber,
+        phone: currentClient.phone,
+        status: "completed",
+      };
+      const clientUpdated = {
+        id: data.id,
+        turnNumber: data.turnNumber,
+        status: data.status,
+      };
+      setAllClients(previousCurrentClient);
+      setAllClients(clientUpdated);
     } else {
       console.error("Failed to update turn");
     }
