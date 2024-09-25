@@ -7,7 +7,7 @@ import RegisterClient from "./RegisterClient.jsx";
 
 const MainView = () => {
   return (
-    <div className="flex flex-col items-center p-6">
+    <div className="flex flex-col md:items-center p-6">
       <TurnDisplay client:load />
 
       <RegisterClient client:load />

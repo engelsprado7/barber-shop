@@ -1,7 +1,10 @@
 ---
 // eslint-disable-next-line prettier/prettier
+export const prerender = false;
+
 import DashboardComponent from "@/components/Dashboard";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+// If the user is not logged in, redirect them to the login page
 ---
 
 <BaseLayout>

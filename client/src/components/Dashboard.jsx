@@ -21,8 +21,6 @@ if (import.meta.env.MODE === "development") {
 }
 
 const Dashboard = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,11 +28,13 @@ const Dashboard = () => {
   const [editedValues, setEditedValues] = useState({});
 
   useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
-
-    if (!isLoggedIn) {
+    const auth = isAuthenticated();
+    if (!auth) {
       return window.location.replace("/sign-in");
     }
+  }, []);
+
+  useEffect(() => {
     const fetchClients = async () => {
       try {
         const response = await fetch(`${URL}/api/clients`); // Adjust the URL to your endpoint
@@ -140,7 +140,10 @@ const Dashboard = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
+    <div className="mt-5">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-5 pl-4">
+        Dashboard
+      </h1>
       <Table>
         <TableCaption>A list of your recent clients.</TableCaption>
 
