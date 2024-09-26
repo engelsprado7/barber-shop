@@ -138,7 +138,7 @@ const RegisterClient = () => {
             {loading ? (
               <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Add Phone"
+              "Agregar a la lista"
             )}
           </Button>
 

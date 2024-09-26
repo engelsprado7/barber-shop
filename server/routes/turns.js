@@ -149,8 +149,8 @@ router.post('/register', verifyToken, async (req, res) => {
         return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    if (!phone) {
-        return res.status(400).json({ error: 'Número de teléfono requerido' });
+    if (!name) {
+        return res.status(400).json({ error: 'El nombre es requerido' });
     }
 
     // Obtener el último número de turno
