@@ -51,6 +51,10 @@ const Dashboard = () => {
     };
 
     fetchClients();
+
+    return () => {
+      setClients([]);
+    };
   }, []);
 
   const handleInputChange = (id, field, value) => {

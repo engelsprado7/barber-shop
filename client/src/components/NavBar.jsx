@@ -2,16 +2,50 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated, logout } from "../utils/auth.js";
 import { CircleX, Menu } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useStore } from "@nanostores/react";
+import { currentShop, isOpen } from "../currentTurnStore.js";
+
+let URL = "";
+
+if (import.meta.env.MODE === "development") {
+  console.log("development");
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND;
+} else {
+  URL = import.meta.env.PUBLIC_URL_API_BACKEND;
+}
+
 const NavBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const $isOpen = useStore(isOpen);
+  const $currentShop = useStore(currentShop);
+  console.log($currentShop);
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
   }, []);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const handleToggle = () => {
+    fetch(`${URL}/api/shop/${$currentShop.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token")}`,
+        refresh_token: `${localStorage.getItem("refresh_token")}`,
+      },
+      body: JSON.stringify({ status: !$isOpen }),
+    }).then((res) => {
+      if (res.ok) {
+        isOpen.set(!$isOpen);
+      } else {
+        console.error("Failed to update shop status");
+      }
+    });
   };
 
   return (
@@ -39,6 +73,17 @@ const NavBar = () => {
               <Button asChild variant="outline">
                 <a href="/dashboard">Dashboard</a>
               </Button>
+              {/* Create a switch toogle that updated the shop status */}
+
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="airplane-mode">Estado</Label>
+
+                <Switch
+                  id="airplane-mode"
+                  checked={$isOpen}
+                  onCheckedChange={handleToggle}
+                />
+              </div>
               <Button
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={logout}

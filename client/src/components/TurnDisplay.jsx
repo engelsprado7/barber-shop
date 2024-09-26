@@ -105,7 +105,7 @@ const TurnDisplay = () => {
     );
 
   return (
-    <div className="min-h-96 pb-10  ">
+    <div className="min-h-96">
       {/* Current and Next Numbers */}
       <Card className="w-full max-w-2xl mb-6 shadow-lg">
         <CardHeader>
