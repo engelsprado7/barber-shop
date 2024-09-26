@@ -5,6 +5,7 @@ import { Alert } from "./ui/alert";
 import { isAuthenticated } from "../utils/auth.js";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { setAllClients } from "@/currentTurnStore";
+import { Label } from "./ui/label";
 let URL = "";
 
 if (import.meta.env.MODE === "development") {
@@ -15,6 +16,7 @@ if (import.meta.env.MODE === "development") {
 const RegisterClient = () => {
   const [message, setMessage] = useState("");
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,6 +44,12 @@ const RegisterClient = () => {
     }, 300); // 300ms debounce delay
   };
 
+  const handleInputNameChange = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setName(value);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -59,7 +67,7 @@ const RegisterClient = () => {
         Authorization: `${token}`,
         refresh_token: refreshToken,
       },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ phone, name }),
     });
 
     if (response.ok) {
@@ -80,6 +88,7 @@ const RegisterClient = () => {
 
     setTimeout(() => {
       setMessage("");
+      setName("");
       setPhone("");
     }, 1000);
   };
@@ -91,16 +100,33 @@ const RegisterClient = () => {
           onSubmit={handleRegister}
           className="w-full max-w-2xl p-4 bg-white shadow-lg rounded-lg"
         >
-          <h3 className="text-lg font-bold text-gray-700 mb-4">Phone Number</h3>
+          <Label className="text-lg font-bold text-gray-700" htmlFor="name">
+            Name
+          </Label>
+          <Input
+            type="text"
+            id="name"
+            placeholder="Enter your name"
+            className="mb-4"
+            value={name}
+            onChange={handleInputNameChange}
+            required
+          />
+          <Label
+            className="text-lg font-bold text-gray-700 mb-4"
+            htmlFor="phone"
+          >
+            Phone Number
+          </Label>
 
           <Input
             ref={inputRef}
             type="tel"
+            id="phone"
             placeholder="Enter your phone number"
             value={phone}
             onChange={handleInputChange}
             className="mb-4"
-            required
           />
           {error && <p className="text-red-600 mb-4">{error}</p>}
 
