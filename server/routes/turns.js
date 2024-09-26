@@ -5,7 +5,6 @@ import supabase from '../supabaseClient.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { sendWhatsAppMessage } from '../twilioClient.js';  // Import Twilio client
 import { getSocket } from '../socket.js'; // Import the getSocket function
-import Studio from 'twilio/lib/rest/Studio.js';
 
 const app = express;
 const router = app.Router();
@@ -30,30 +29,6 @@ router.put('/clients/:id', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Error updating client' });
     }
 })
-
-//Endpoint for getting the clients with pending status
-// for example: /api/clients/pending?status=pending
-
-router.get('/clients/pending', async (req, res) => {
-    const { status } = req.query;
-    if (status === 'pending') {
-        try {
-            const { data: pendingClients, error } = await supabase
-                .from('clients')
-                .select('*')
-                .eq('status', 'pending');
-
-            if (error) throw error;
-
-            res.status(200).json({ clients: pendingClients });
-        } catch (error) {
-            console.error('Error fetching pending clients:', error);
-            res.status(500).json({ message: 'Error fetching pending clients' });
-        }
-    } else {
-        res.status(400).json({ error: 'Invalid status query parameter' });
-    }
-});
 
 
 // Endpoint para obtener el número actual y los próximos
@@ -168,9 +143,8 @@ router.post('/next', verifyToken, async (req, res) => {
 
 // Endpoint para registrar un cliente con un número de teléfono
 router.post('/register', verifyToken, async (req, res) => {
-    const { phone } = req.body;
+    const { phone, name } = req.body;
     const user = req.user; // Assuming req.user contains authenticated user info
-    const io = getSocket();
     if (!user) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
@@ -198,14 +172,14 @@ router.post('/register', verifyToken, async (req, res) => {
     // Insertar el nuevo cliente con su número de turno
     const { data, error } = await supabase
         .from('clients')
-        .insert([{ phone, turnNumber: newTurnNumber, user_id: user.id, status: status }]).select();
+        .insert([{ phone, turnNumber: newTurnNumber, user_id: user.id, status: status, name }]).select();
     console.log('error', error);
     console.log('data', data);
     if (error) {
         return res.status(500).json({ error: 'Error al registrar el cliente' });
     }
 
-    res.status(200).json({ id: data[0].id, turnNumber: newTurnNumber, status: status });
+    res.status(200).json({ id: data[0].id, turnNumber: newTurnNumber, status: status, name });
 });
 
 export default router;
