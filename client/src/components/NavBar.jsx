@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@nanostores/react";
 import { currentShop, isOpen } from "../currentTurnStore.js";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 let URL = "";
 
@@ -17,11 +18,11 @@ if (import.meta.env.MODE === "development") {
 }
 
 const NavBar = () => {
+  const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const $isOpen = useStore(isOpen);
   const $currentShop = useStore(currentShop);
-  console.log($currentShop);
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
   }, []);
@@ -44,6 +45,28 @@ const NavBar = () => {
         isOpen.set(!$isOpen);
       } else {
         console.error("Failed to update shop status");
+      }
+    });
+  };
+
+  const resetCounter = () => {
+    setLoading(true);
+
+    fetch(`${URL}/api/shop/${$currentShop.id}/reset`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token")}`,
+        refresh_token: `${localStorage.getItem("refresh_token")}`,
+      },
+    }).then((res) => {
+      console.log("res", res);
+      if (res.ok) {
+        setLoading(false);
+        console.log("Counter reseted");
+      } else {
+        setLoading(false);
+        console.error("Failed to reset counter");
       }
     });
   };
@@ -73,7 +96,20 @@ const NavBar = () => {
               <Button asChild variant="outline">
                 <a href="/dashboard">Dashboard</a>
               </Button>
-              {/* Create a switch toogle that updated the shop status */}
+
+              <div>
+                <Button
+                  variant="outline"
+                  onClick={resetCounter}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Reiniciar contador"
+                  )}
+                </Button>
+              </div>
 
               <div className="flex items-center space-x-2">
                 <Label htmlFor="airplane-mode">Estado</Label>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Alert } from "./ui/alert";
@@ -26,9 +26,18 @@ const RegisterClient = () => {
     setIsLoggedIn(isAuthenticated());
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     e.preventDefault();
-    const value = e.target.value;
+    let value = e.target.value.trim(); // Remove leading and trailing spaces
+
+    // Remove country code +505 if present
+    if (value.startsWith("+505")) {
+      value = value.slice(4);
+    }
+
+    // Remove all spaces within the number
+    value = value.replace(/\s+/g, "");
+
     setPhone(value);
 
     if (debounceTimeout.current) {
@@ -42,7 +51,7 @@ const RegisterClient = () => {
         setError("");
       }
     }, 300); // 300ms debounce delay
-  };
+  }, []);
 
   const handleInputNameChange = (e) => {
     e.preventDefault();
