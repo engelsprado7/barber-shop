@@ -18,7 +18,6 @@ router.get('/shop', async (req, res) => {
 
         if (error) throw error;
 
-        console.log('shop_configs:', shop_configs);
         res.status(200).json(shop_configs[0]);
     } catch (error) {
         console.error('Error fetching shop status:', error);

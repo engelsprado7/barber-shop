@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import authRoutes from './routes/auth.js';
 import turnRoutes from './routes/turns.js';
 import shopRoutes from './routes/shop.js';
+import contactRoutes from './routes/contacts.js';
 import { initializeSocket } from './socket.js';
 
 
@@ -21,6 +22,10 @@ app.use('/api', authRoutes);
 
 // Turn Routes (Protected)
 app.use('/api', turnRoutes);
+
+// Contact Routes
+
+app.use('/api', contactRoutes);
 
 // Shop config
 app.use('/api', shopRoutes)
